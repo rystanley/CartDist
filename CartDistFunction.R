@@ -6,7 +6,11 @@ directory="C:/Users/JefferyN/Desktop/"
 ##Coordinates file must have column names Lat and Long, and column 1 should be your pop names or codes
 
 
-coord_cartesian<-function(coordinates,min.depth,max.depth,directory){
+coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
+  
+  #gridres = resolution (mins) of the bathymetric grid used for least coast path (default = 2)
+  
+  
   require(gdistance)
   require(maps)
   require(mapdata)
@@ -32,7 +36,7 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,directory){
   setwd(directory)
   writeLines("Getting bathymetry data from NOAA database\n")
   bathydata<-getNOAA.bathy(lon1 = Long.lim[1], lon2 = Long.lim[2], lat1 = Lat.lim[1], lat2 = Lat.lim[2],
-                           resolution = 3,keep=TRUE)
+                           resolution = 1,keep=TRUE)
   
   #Make colours and plot it
   blues <- c("lightsteelblue4", "lightsteelblue3",
@@ -44,25 +48,31 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,directory){
        bpal = list(c(0, max(bathydata), greys),
                    c(min(bathydata), 0, blues)))
   plot(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE) # highlight coastline
-  points(coords$Long, coords$Lat,pch=19,cex=1,col="red")
+  points(coords$Long, coords$Lat,pch=19,cex=3,col="red")
   dev.off()
   
   #Get depths and if any depths > 0 we will not proceed
   writeLines("\nMaking sure that all depths are <-1m deep\n")
   depths<-get.depth(bathydata,x=coords$Long,y=coords$Lat,locator=F)
   
-  for(i in 1:length(depths$depth)){
-    if(depths$depth[i] > 0){
+  max.depth <- max()
+
+     if(length(depths$depth > 0)>1){
+       depths[depths[,"depth"]>1,]
       stop("Some of your points appear to be on land. Suggest moving points farther off land for this analysis")
-    }
-  }
+     }
+  
+  
+  write.table("\nAll coordinates appear to be in water.\n")
+  
+  write.table("\nCalculating transition object for least-cost analysis.\n")
   
   #Make the trans mat object then do the lc dist calculation
   trans1 <- trans.mat(bathydata,min.depth = min.depth,max.depth = max.depth) 
   sites<-coords[,c("Long","Lat")]
   rownames(sites)<-coords[,1]
   
-  writeLines("Calculating least cost distances. This will probably take a few minutes...")
+  writeLines("Calculating least cost distances. This will probably can take a few minutes depending onresolution...")
   lc.dists <- lc.dist(trans1, 
                       sites, 
                       res="dist")
@@ -95,9 +105,14 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,directory){
   ggsave(filename = paste0(directory,"Cartesian_vs_Geographic_Distances.pdf"),p1,device = "pdf",width = 8, height=8,dpi = 400)
   
   mod <- lm(log10(Deg)~log10(Cart),data=filter(cartfit,Cart>0,Deg>0))
-  summary(mod)
+  #summary(mod)
   
-  finaloutput<-cbind(coords,cart.dists)
+  output <- list(Coords <- cbind(coords,cart.dists),
+                 fitplot <- p1)
+  
+  return(output)
+  
+  #finaloutput<-cbind(coords,cart.dists)
   
   write.csv(x = finaloutput,file = paste0(directory,"MyCartesianCoordinates.csv"),quote = FALSE,row.names = F)
   
