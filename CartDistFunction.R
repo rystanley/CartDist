@@ -82,7 +82,7 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,directory){
   colnames(cartfit) <- c("Deg","Cart")
   cartfit$Stress <- stress.values
   
-  ggplot(filter(cartfit,Deg>0,Cart>0),aes(x=Deg,y=Cart))+
+  p1<-ggplot(filter(cartfit,Deg>0,Cart>0),aes(x=Deg,y=Cart))+
     geom_point()+
     scale_x_log10()+
     scale_y_log10()+
@@ -91,8 +91,8 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,directory){
     theme_bw()+
     labs(x="Geographic distance",y="Cartesian distance")
   
-  ggsave(filename =paste0(directory,"Cartesian_vs_Geographic_Distances.png"),device = "png",width = 8, height=8,dpi = 400)
-  ggsave(filename = paste0(directory,"Cartesian_vs_Geographic_Distances.pdf"),device = "pdf",width = 8, height=8,dpi = 400)
+  ggsave(filename =paste0(directory,"Cartesian_vs_Geographic_Distances.png"),p1,device = "png",width = 8, height=8,dpi = 400)
+  ggsave(filename = paste0(directory,"Cartesian_vs_Geographic_Distances.pdf"),p1,device = "pdf",width = 8, height=8,dpi = 400)
   
   mod <- lm(log10(Deg)~log10(Cart),data=filter(cartfit,Cart>0,Deg>0))
   summary(mod)
