@@ -1,4 +1,4 @@
-min.depth=NULL
+min.depth=0
 max.depth=NULL
 coordinates<-"C:/Users/JefferyN/Desktop/Test.csv"
 directory="C:/Users/JefferyN/Desktop/"
@@ -48,24 +48,24 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
        bpal = list(c(0, max(bathydata), greys),
                    c(min(bathydata), 0, blues)))
   plot(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE) # highlight coastline
-  points(coords$Long, coords$Lat,pch=19,cex=3,col="red")
+  points(coords$Long, coords$Lat,pch=19,cex=2,col="red")
   dev.off()
   
   #Get depths and if any depths > 0 we will not proceed
   writeLines("\nMaking sure that all depths are <-1m deep\n")
   depths<-get.depth(bathydata,x=coords$Long,y=coords$Lat,locator=F)
   
-  max.depth <- max()
+  #max.depth <- max()
 
-     if(length(depths$depth > 0)>1){
-       depths[depths[,"depth"]>1,]
+  for(i in 1:length(depths$depth)){
+    if(depths$depth[i] > 0){
       stop("Some of your points appear to be on land. Suggest moving points farther off land for this analysis")
-     }
+    }
+  }
   
+  writeLines("\nAll coordinates appear to be in water.\n")
   
-  write.table("\nAll coordinates appear to be in water.\n")
-  
-  write.table("\nCalculating transition object for least-cost analysis.\n")
+  writeLines("\nCalculating transition object for least-cost analysis.\n")
   
   #Make the trans mat object then do the lc dist calculation
   trans1 <- trans.mat(bathydata,min.depth = min.depth,max.depth = max.depth) 
