@@ -77,7 +77,6 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 # **Example use** <a name="exampleuse"/>
 
 
-oordinates,min.depth,max.depth,gridres,directory
 **Parameter** | **Input**  
 --------------|-----------------------------------
 *coordinates* | description
