@@ -105,9 +105,10 @@ Example output. Shows a linear model of geographic versus Cartesian least-cost d
 Final output will show your stress (<0.05 is good) and new Cartesian coordinates added to your coordinates input. 
 
 "metaMDS reprojection stress = 0.0097"
+
 **Code**  |  **Long** |   **Lat**   |   **MDS1**    |    **MDS2**
 ----------|-----------|-------------|---------------|-------------
-BDB | -61.716 47.000 -495.7915 -142.653254
+BDB | -61.716 | 47.000 | -495.7915 | -142.653254
 BRN | -62.000 46.102 -528.7704 -221.392140
 CBI | -66.800 44.400  484.5275  -47.646351
 CLH | -63.440 44.000  186.1135  144.096598
