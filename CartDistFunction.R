@@ -38,13 +38,15 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres,directory){
   #Make colours and plot it
   blues <- c("lightsteelblue4", "lightsteelblue3",
              "lightsteelblue2", "lightsteelblue1")
-  greys <- c(grey(0.6), grey(0.93), grey(0.99))
+  greys <- "grey40"
   
-  png("MyMap.png",width=1200,height=1200)
-  plot(bathydata,image = TRUE, land = TRUE, lwd = 0.03,
+  png("MyMap.png",width=1800,height=1200)
+  plot(bathydata,image = TRUE, land = T, lwd = 0.03,
        bpal = list(c(0, max(bathydata), greys),
                    c(min(bathydata), 0, blues)))
-  plot(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE) # highlight coastline
+  plot(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE)
+  #map("worldHires", xlim=Long.lim, ylim=Lat.lim, col="grey30", fill=TRUE, resolution=0,add=T)
+  #map.axes(cex.axis=2);map.scale(ratio=FALSE)
   points(coords$Long, coords$Lat,pch=19,cex=2,col="red")
   dev.off()
   
