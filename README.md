@@ -6,7 +6,7 @@ Code to re-project marine least-cost distances into Cartesian coordinates.
 
 ![](vignette/CartesianWorkflow.jpg)
 
-Example workflow 1) assemble coordinates in native geographic coordination, 2) calculate least-cost path accounting for land as barrier, 3) calculate 2 dimensional rescaling using metaMDS, 4) compare distances in 2 dimensional rescaling with least-cost distances. Example locations from [Benestan et al. 2016](http://onlinelibrary.wiley.com/doi/10.1111/mec.13245/abstract) 
+Example workflow 1) assemble coordinates in native geographic coordination, 2) calculate least-cost path accounting for land as barrier, 3) calculate 2 dimensional rescaling using metaMDS, 4) compare distances in 2 dimensional rescaling with least-cost distances. Example locations from [Benestan et al. 2016](http://onlinelibrary.wiley.com/doi/10.1111/mec.13245/abstract). 
 
 
 ***
@@ -28,10 +28,10 @@ CartDist requires the installation and availability of the following packages
 ***
 
 ## Contributions:
-*imExtractor* coded by Ryan Stanley <https://github.com/rystanley> 
+*CartDist* was coded by Ryan Stanley <https://github.com/rystanley> and Nick Jeffery <https://github.com/NickJeff13>
 
 * If you don’t understand something, please let me know: 
-(ryan.stanley _at_ dfo-mpo.gc.ca). 
+(ryan.stanley _at_ dfo-mpo.gc.ca) or (nick.jeffery _at_ dfo-mpo.gc.ca)
 * Any ideas on how to improve the functionality are very much appreciated. 
 * If you spot a typo, feel free to edit and send a pull request.
 
@@ -56,7 +56,7 @@ Stanley, R.R.E and N.W. Jeffery 2017. CartDist: Re-projection tool for complex m
 ***
 # **Installation**
 
-*CartDist* can be sourced into the workspace by cloning this [Github directory](github.com/rystanley/CartDist) or by sourcing directly using the web url.
+*CartDist* can be sourced into the workspace by cloning this [Github directory](https://github.com/rystanley/CartDist) or by sourcing directly using the web url.
 
 <a name="installation"/>
 
@@ -71,5 +71,26 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
   script <- getURL(Weblink, ssl.verifypeer = FALSE)
   eval(parse(text = script),envir=.GlobalEnv)
   rm(script)  
+
+```
+
+# **Example use** <a name="exampleuse"/>
+
+
+oordinates,min.depth,max.depth,gridres,directory
+**Parameter** | **Input**  
+--------------|-----------------------------------
+*coordinates* | ...
+*min.depth* | .... 
+*max.depth*| ... 
+*gridres* | .... 
+*directory* | ...
+
+##Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/exampledata)
+
+
+```r
+
+coord_cartesian("exampledata/examplecoords.csv", ...) 
 
 ```
