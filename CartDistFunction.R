@@ -40,7 +40,7 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres,directory){
              "lightsteelblue2", "lightsteelblue1")
   greys <- "grey40"
   
-  png("MyMap.png",width=1800,height=1200)
+  png("MyMap.png",width=900,height=600)
   plot(bathydata,image = TRUE, land = T, lwd = 0.03,
        bpal = list(c(0, max(bathydata), greys),
                    c(min(bathydata), 0, blues)))
