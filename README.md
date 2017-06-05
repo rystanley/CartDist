@@ -80,11 +80,11 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 oordinates,min.depth,max.depth,gridres,directory
 **Parameter** | **Input**  
 --------------|-----------------------------------
-*coordinates* | ...
-*min.depth* | .... 
-*max.depth*| ... 
-*gridres* | .... 
-*directory* | ...
+*coordinates* | description
+*min.depth* | description 
+*max.depth*| description 
+*gridres* | description 
+*directory* | description
 
 ##Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/exampledata)
 
