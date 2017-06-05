@@ -8,9 +8,6 @@ Code to re-project marine least-cost distances into Cartesian coordinates.
 
 Example workflow 1) assemble coordinates in native geographic coordination, 2) calculate least-cost path accounting for land as barrier, 3) calculate 2 dimensional rescaling using metaMDS, 4) compare distances in 2 dimensional rescaling with least-cost distances. Example locations from [Benestan et al. 2016](http://onlinelibrary.wiley.com/doi/10.1111/mec.13245/abstract). 
 
-![](vignette/Cartesian_vs_Geographic_Distances.png)
-
-Example output. Shows a linear model of geographic versus Cartesian least-cost distances among sample sites. A strong positive relationship indicates that that your coordinates were re-projected correctly. 
 
 ***
 **Requirement:**
@@ -88,11 +85,35 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 *gridres* | The resolution used during marmap's bathymetry calculations. Ranges from 1-4, with 1 being the highest resolution. Note that higher resolutions will take a longer time.
 *directory* | The directory you want your results and figures deposited in. 
 
-##Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata)
+## Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata)
 
 
 ```r
 
-coord_cartesian("exampledata/examplecoordinates.csv", ...) 
+coord_cartesian("exampledata/examplecoordinates.csv", min.depth=-5,max.depth=NULL, gridres=2, directory="~/Desktop/") 
 
 ```
+![](vignette/ExampleMap.png)
+
+An example bathymetry map with points produced by this function using the marmap package [Pante and Simon-Bouhet 2013](https://cran.r-project.org/web/packages/marmap/index.html)
+
+![](vignette/Cartesian_vs_Geographic_Distances.png)
+
+Example output. Shows a linear model of geographic versus Cartesian least-cost distances among sample sites. A strong positive relationship indicates that that your coordinates were re-projected correctly.
+
+
+Final output will show your stress (<0.05 is good) and new Cartesian coordinates added to your coordinates input. 
+
+"metaMDS reprojection stress = 0.0097"
+    Code    Long    Lat      MDS1        MDS2
+BDB  BDB -61.716 47.000 -495.7915 -142.653254
+BRN  BRN -62.000 46.102 -528.7704 -221.392140
+CBI  CBI -66.800 44.400  484.5275  -47.646351
+CLH  CLH -63.440 44.000  186.1135  144.096598
+KJI  KJI -65.000 43.300  294.2912  -14.405217
+MBO  MBO -61.900 46.000 -530.9009 -220.900346
+NWH  NWH -70.100 42.959  671.4362 -244.326054
+PLB  PLB -54.300 46.500 -502.5656  585.986324
+SGB  SGB -59.500 48.350 -527.2547   35.758083
+SYH  SYH -60.000 46.500 -347.4827   -6.182589
+TKT  TKT -74.200 39.006 1296.3973  131.664946
