@@ -1,15 +1,12 @@
-min.depth=0
-max.depth=NULL
-coordinates<-"C:/Users/JefferyN/Desktop/Test.csv"
-directory="C:/Users/JefferyN/Desktop/"
+#A function to convert a dataframe (as a .csv file) of coordinates to Cartesian coordinates.
+#Calculates least-cost distances among sites in water. 
+#Then plots a map of points, a linear model of least-cost geographic vs Cartesian distances, and adds Cartesian coordinates to your input file.
+#If any sites are too close to land it will stop, as it requires depths <0 metres. 
 
-##Coordinates file must have column names Lat and Long, and column 1 should be your pop names or codes
-
-
-coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
+coord_cartesian<-function(coordinates,min.depth,max.depth,gridres,directory){
   
   #gridres = resolution (mins) of the bathymetric grid used for least coast path (default = 2)
-  
+  ##Coordinates file must have column names Lat and Long, and column 1 should be your pop names or codes
   
   require(gdistance)
   require(maps)
@@ -55,11 +52,10 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
   writeLines("\nMaking sure that all depths are <-1m deep\n")
   depths<-get.depth(bathydata,x=coords$Long,y=coords$Lat,locator=F)
   
-  #max.depth <- max()
 
   for(i in 1:length(depths$depth)){
     if(depths$depth[i] > 0){
-      stop("Some of your points appear to be on land. Suggest moving points farther off land for this analysis")
+      stop("\nSome of your points appear to be too close to land. Suggest moving points farther off land for this analysis\n\n\n")
     }
   }
   
@@ -111,8 +107,6 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
                  fitplot <- p1)
   
   return(output)
-  
-  #finaloutput<-cbind(coords,cart.dists)
   
   write.csv(x = finaloutput,file = paste0(directory,"MyCartesianCoordinates.csv"),quote = FALSE,row.names = F)
   
