@@ -1,15 +1,12 @@
-min.depth=NULL
-max.depth=NULL
-coordinates<-"C:/Users/JefferyN/Desktop/Test.csv"
-directory="C:/Users/JefferyN/Desktop/"
+#A function to convert a dataframe (as a .csv file) of coordinates to Cartesian coordinates.
+#Calculates least-cost distances among sites in water. 
+#Then plots a map of points, a linear model of least-cost geographic vs Cartesian distances, and adds Cartesian coordinates to your input file.
+#If any sites are too close to land it will stop, as it requires depths <0 metres. 
 
-##Coordinates file must have column names Lat and Long, and column 1 should be your pop names or codes
-
-
-coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
+coord_cartesian<-function(coordinates,min.depth,max.depth,gridres,directory){
   
   #gridres = resolution (mins) of the bathymetric grid used for least coast path (default = 2)
-  
+  ##Coordinates file must have column names Lat and Long, and column 1 should be your pop names or codes
   
   require(gdistance)
   require(maps)
@@ -48,24 +45,23 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
        bpal = list(c(0, max(bathydata), greys),
                    c(min(bathydata), 0, blues)))
   plot(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE) # highlight coastline
-  points(coords$Long, coords$Lat,pch=19,cex=3,col="red")
+  points(coords$Long, coords$Lat,pch=19,cex=2,col="red")
   dev.off()
   
   #Get depths and if any depths > 0 we will not proceed
   writeLines("\nMaking sure that all depths are <-1m deep\n")
   depths<-get.depth(bathydata,x=coords$Long,y=coords$Lat,locator=F)
   
-  max.depth <- max()
 
-     if(length(depths$depth > 0)>1){
-       depths[depths[,"depth"]>1,]
-      stop("Some of your points appear to be on land. Suggest moving points farther off land for this analysis")
-     }
+  for(i in 1:length(depths$depth)){
+    if(depths$depth[i] > 0){
+      stop("\nSome of your points appear to be too close to land. Suggest moving points farther off land for this analysis\n\n\n")
+    }
+  }
   
+  writeLines("\nAll coordinates appear to be in water.\n")
   
-  write.table("\nAll coordinates appear to be in water.\n")
-  
-  write.table("\nCalculating transition object for least-cost analysis.\n")
+  writeLines("\nCalculating transition object for least-cost analysis.\n")
   
   #Make the trans mat object then do the lc dist calculation
   trans1 <- trans.mat(bathydata,min.depth = min.depth,max.depth = max.depth) 
@@ -111,8 +107,6 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres=2,directory){
                  fitplot <- p1)
   
   return(output)
-  
-  #finaloutput<-cbind(coords,cart.dists)
   
   write.csv(x = finaloutput,file = paste0(directory,"MyCartesianCoordinates.csv"),quote = FALSE,row.names = F)
   
