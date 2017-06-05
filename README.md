@@ -85,11 +85,11 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 *gridres* | description 
 *directory* | description
 
-##Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/exampledata)
+##Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata)
 
 
 ```r
 
-coord_cartesian("exampledata/examplecoords.csv", ...) 
+coord_cartesian("exampledata/examplecoordinates.csv", ...) 
 
 ```
