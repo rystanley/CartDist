@@ -40,12 +40,12 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres,directory){
              "lightsteelblue2", "lightsteelblue1")
   greys <- "grey40"
   
-  png("MyMap.png",width=900,height=600)
+  png("MyMap.png",width=950,height=600)
   plot(bathydata,image = TRUE, land = T, lwd = 0.03,
        bpal = list(c(0, max(bathydata), greys),
                    c(min(bathydata), 0, blues)))
   plot(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE)
-  #map("worldHires", xlim=Long.lim, ylim=Lat.lim, col="grey30", fill=TRUE, resolution=0,add=T)
+  map("worldHires", xlim=Long.lim, ylim=Lat.lim, col="grey30", fill=TRUE, resolution=0,add=T)
   #map.axes(cex.axis=2);map.scale(ratio=FALSE)
   points(coords$Long, coords$Lat,pch=19,cex=2,col="red")
   dev.off()
