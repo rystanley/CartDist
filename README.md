@@ -4,7 +4,7 @@ Code to re-project marine least-cost distances into Cartesian coordinates.
 [![DOI](https://zenodo.org/badge/93073704.svg)](https://zenodo.org/badge/latestdoi/93073704)
 
 
-![](vignettes/CartesianWorkflow.png)
+![](vignettes/CartesianWorkflow.jpg)
 
 Example workflow 1) assemble coordinates in native geographic coordination, 2) calculate least-cost path accounting for land as barrier, 3) calculate 2 dimensional rescaling using metaMDS, 4) compare distances in 2 dimensional rescaling with least-cost distances.
 
