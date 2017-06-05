@@ -108,6 +108,6 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,gridres,directory){
   
   return(output)
   
-  write.csv(x = finaloutput,file = paste0(directory,"MyCartesianCoordinates.csv"),quote = FALSE,row.names = F)
+  write.csv(x = Coords,file = paste0(directory,"MyCartesianCoordinates.csv"),quote = FALSE,row.names = F)
   
 }

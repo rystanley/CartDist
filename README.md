@@ -8,6 +8,9 @@ Code to re-project marine least-cost distances into Cartesian coordinates.
 
 Example workflow 1) assemble coordinates in native geographic coordination, 2) calculate least-cost path accounting for land as barrier, 3) calculate 2 dimensional rescaling using metaMDS, 4) compare distances in 2 dimensional rescaling with least-cost distances. Example locations from [Benestan et al. 2016](http://onlinelibrary.wiley.com/doi/10.1111/mec.13245/abstract). 
 
+![](vignette/Cartesian_vs_Geographic_Distances.png)
+
+Example output. Shows a linear model of geographic versus Cartesian least-cost distances among sample sites. A strong positive relationship indicates that that your coordinates were re-projected correctly. 
 
 ***
 **Requirement:**
@@ -79,11 +82,11 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 
 **Parameter** | **Input**  
 --------------|-----------------------------------
-*coordinates* | description
-*min.depth* | description 
-*max.depth*| description 
-*gridres* | description 
-*directory* | description
+*coordinates* | This .csv file requires at least 3 columns - "Code","Lat", and "Long". Make sure your points are not on land prior to analysis. 
+*min.depth* | The minimum depth required to calculate least-cost distances for your species of interest. 
+*max.depth*| The minimum depth required to calculate least-cost distances for your species of interest. Can be NULL. 
+*gridres* | The resolution used during marmap's bathymetry calculations. Ranges from 1-4, with 1 being the highest resolution. Note that higher resolutions will take a longer time.
+*directory* | The directory you want your results and figures deposited in. 
 
 ##Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata)
 
