@@ -94,7 +94,7 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 *gridres* | The resolution used during marmap's bathymetry calculations. Ranges from 1-4, with 1 being the highest resolution. Note that higher resolutions will take a longer time.
 *directory* | The directory you want your results and figures deposited in. 
 
-## Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata). Locations are derived from RAD sequencing study on European green crab (_Carcinus maenas_) available [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5395438/)
+Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata). Locations are derived from RAD sequencing study on European green crab (_Carcinus maenas_) available [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5395438/)
 
 
 ```r
