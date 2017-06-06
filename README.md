@@ -15,10 +15,10 @@ CartDist requires the installation and availability of the following packages
 
 * CartDist requires the installation and availability of the following packages:
 * extracting meta-data:
-    * gdistance
-    * marmap
-    * ggplot2
-    * vegan
+    * [gdistance](https://cran.r-project.org/web/packages/gdistance/gdistance.pdf)
+    * [marmap](https://cran.r-project.org/web/packages/marmap/vignettes/marmap.pdf)
+    * [ggplot2](http://ggplot2.org/)
+    * [vegan](https://cran.r-project.org/web/packages/vegan/vegan.pdf)
 
 
 ***
