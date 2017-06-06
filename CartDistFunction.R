@@ -25,13 +25,13 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,trans=NA,gridres,direc
   #Get the bathydata and keep it
   setwd(directory)
   writeLines("Getting bathymetry data from NOAA database\n")
-  bathydata<-getNOAA.bathy(lon1 = Long.lim[1], lon2 = Long.lim[2], lat1 = Lat.lim[1], lat2 = Lat.lim[2],
+  bathydata<-marmap::getNOAA.bathy(lon1 = Long.lim[1], lon2 = Long.lim[2], lat1 = Lat.lim[1], lat2 = Lat.lim[2],
                            resolution = 1,keep=TRUE)
   
   #Make colours and plot it
   blues <- c("lightsteelblue4", "lightsteelblue3",
              "lightsteelblue2", "lightsteelblue1")
-  greys <- "grey40"
+  greys <- c(grey(0.6), grey(0.93), grey(0.99))
   
   #Get depths and plot. If any depths > 0 we will not proceed
   depths<-marmap::get.depth(bathydata,x=coords$Long,y=coords$Lat,locator=F)
@@ -112,13 +112,13 @@ coord_cartesian<-function(coordinates,min.depth,max.depth,trans=NA,gridres,direc
   ggsave(filename = paste0(directory,"Cartesian_vs_Geographic_Distances.pdf"),p1,device = "pdf",width = 8, height=8,dpi = 400)
   
   mod <- lm(log10(Deg)~log10(Cart),data=filter(cartfit,Cart>0,Deg>0))
-  #summary(mod)
-  
-  output <- list(Coords <- cbind(coords,cart.dists),
-                 fitplot <- p1,
-                 mod <- mod,
-                 trans <- trans,
-                 lc.dist <- lc.dist)
+
+  output <- list(Coords <- cbind(coords,cart.dists), #Geographic and Cartesian coordinates
+                 fitplot <- p1, #fitted plot
+                 mod <- mod, #fitted model
+                 trans <- trans, #transition object
+                 lc.dist <- lc.dist, #least cost distance matrix
+                 bathydata <- bathydata) #bathymetric layer
   
   return(output)
   
