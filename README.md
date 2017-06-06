@@ -70,18 +70,9 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 
 ```
 
-# **Example use** <a name="exampleuse"/>
+# **Output**
 
-**Parameter** | **Input**  
---------------|-----------------------------------
-*coordinates* | This .csv file requires at least 3 columns - "Code","Lat", and "Long". Make sure your points are not on land prior to analysis. 
-*min.depth* | The minimum depth required to calculate least-cost distances for your species of interest. 
-*max.depth*| The minimum depth required to calculate least-cost distances for your species of interest. Can be NULL. 
-*trans*| A transition object (object from the marmap::trans.mat). Defualt is NA and will be calcauted. If this has been calculated already it can be included as a workspace object.
-*gridres* | The resolution used during marmap's bathymetry calculations. Ranges from 1-4, with 1 being the highest resolution. Note that higher resolutions will take a longer time.
-*directory* | The directory you want your results and figures deposited in. 
-
-# **Example output**
+## Output is a list object containing:
 
 **Parameter** | **Description**  
 --------------|-----------------------------------
@@ -91,6 +82,17 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 *trans*| A transition object (object from the marmap::trans.mat or the transition object supplied by input parameter 'trans'). 
 *lc.dist* | Pairwise dissimilarity (km) among locations in the container provided by marmap::lc.dist.
 *bathydata* | Bathymetric data calcaulted for region. 
+
+# **Example use**
+
+**Parameter** | **Input**  
+--------------|-----------------------------------
+*coordinates* | This .csv file requires at least 3 columns - "Code","Lat", and "Long". Make sure your points are not on land prior to analysis. 
+*min.depth* | The minimum depth required to calculate least-cost distances for your species of interest. 
+*max.depth*| The minimum depth required to calculate least-cost distances for your species of interest. Can be NULL. 
+*trans*| A transition object (object from the marmap::trans.mat). Defualt is NA and will be calcauted. If this has been calculated already it can be included as a workspace object.
+*gridres* | The resolution used during marmap's bathymetry calculations. Ranges from 1-4, with 1 being the highest resolution. Note that higher resolutions will take a longer time.
+*directory* | The directory you want your results and figures deposited in. 
 
 ## Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata)
 
