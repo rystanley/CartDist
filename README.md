@@ -16,12 +16,8 @@ CartDist requires the installation and availability of the following packages
 * CartDist requires the installation and availability of the following packages:
 * extracting meta-data:
     * gdistance
-    * maps
-    * mapdata
     * marmap
     * ggplot2
-    * dplyr
-    * data.table
     * vegan
 
 
