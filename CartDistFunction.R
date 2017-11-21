@@ -179,8 +179,17 @@ coord_cartesian <- function(coordinates,min.depth=NA,max.depth=NA,trans=NA,gridr
   lc.dist <- lc.dist #least cost distance matrix
   bathydata <- bathydata #bathymetric layer
   
-  rm(list=setdiff(ls(), c("Coords","fitplot","stress","mod","trans","lc.dist","bathydata","outpath")))
+ 
+  ## return output as a RData saved image. This is more efficient than a list or S4 object at holding the potentially large transition object.
+  if(!is.na(outpath)){
+    writeLines(paste("Saving reprojected coordinates, summary plots, transition object and bathymetric layer to",outpath,sep=" "))
+    save(list = c("Coords","fitplot","stress","mod","trans","lc.dist","bathydata"), file = outpath)
+    }
   
-  if(!is.na(outpath)){save.image(outpath)}else{save.image(paste0("Output-", format(Sys.time(), "%Y_%m_%d_%H_%M_%S"),".RData"))}
+  if(is.na(outpath)){
+    writeLines(paste("Saving reprojected coordinates, summary plots, transition object and bathymetric layer to",
+                     paste0(getwd(),"/Output-", format(Sys.time(), "%Y_%m_%d_%H_%M_%S"),".RData"),sep=" "))
+    save(list = c("Coords","fitplot","stress","mod","trans","lc.dist","bathydata"),file=paste0("Output-", format(Sys.time(), "%Y_%m_%d_%H_%M_%S"),".RData"))
+    }
   
 }
