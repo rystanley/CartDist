@@ -3,127 +3,184 @@
 #Then plots a map of points, a linear model of least-cost geographic vs Cartesian distances, and adds Cartesian coordinates to your input file.
 #If any sites are too close to land it will stop, as it requires depths <0 metres. 
 
-coord_cartesian<-function(coordinates,min.depth,max.depth,trans=NA,gridres,directory){
+coord_cartesian <- function(coordinates,min.depth=NA,max.depth=NA,trans=NA,gridres=2,directory=NA,outpath=NA){
   
-  #gridres = resolution (mins) of the bathymetric grid used for least coast path (default = 2)
-  ##Coordinates file must have column names Lat and Long, and column 1 should be your pop names or codes
+  #coordinates - path to a csv file with the coordinates and site names. This must have three columns the first being the site name, second the longitude and third the latitude.
+  #min.depth   - minimum depth that can be considered passable in the least-cost analysis. Note that depths are negative. Default is NA or 0.
+  #max.depth   - maximum depth that can be considred passable in the least-cost analysis. Note that depths are negative. Default is NA or NULL meaning the analysis depths will permit movement between the min.depth and the maximum depth of the derived bathymetric layer.
+  #trans       - is a transition object (marmap) that might have been calcualted in a previous analysis. Note that each run will return the transition object. This object can called from the workspace into the fuction. 
+  #gridres     - resolution (mins) of the bathymetric grid used for least coast path (default = 2)
+  #directory   - if specified this is where marmap will save and or look for the output for the bathy object created by marmap. 
+  #outpath     - this is the filepath for the output from the function a .Rdata file. Note this must be a full file path ending in .RData. If no path is provided a 'Output' .RData file will be created in the current directory.
   
+  #Libraries ----------
+  #Check to make sure the packages required are there and install missing
+  
+  writeLines("\nChecking on package availability.\n")
+  packages <- c("gdistance", "ggplot2", "marmap","vegan")
+  if (length(setdiff(packages, rownames(installed.packages()))) > 0) { 
+    writeLines(paste("Installing missing packages: ",paste(setdiff(packages, rownames(installed.packages())),collapse=", "),sep=" "))
+    install.packages(setdiff(packages, rownames(installed.packages())))  
+  } 
+  
+  #load each library
   require(gdistance)
+  require(marmap)
+  require(vegan)
   require(ggplot2)
- 
-  coords<-read.csv(coordinates,header=T)
   
-  if (length(colnames(coords))<3){
-    stop("You need at least 3 columns in your dataframe: Populations, Long, and Lat")
+  ## check the outpath
+  if(!is.na(outpath) & substring(outpath,nchar(outpath)-5,nchar(outpath))!= ".RData"){
+    stop("\nParamter outpath must be a full path ending in .RData. Please fix and try again.\n")
   }
   
+  #Plotting settings for water bathymetry fill
+  blues <- c("lightsteelblue4", "lightsteelblue3",
+             "lightsteelblue2", "lightsteelblue1")
+  greys <- c(grey(0.6), grey(0.93), grey(0.99))
+  
+  ##read in coordinates and check format
+  coords<-read.csv(coordinates,header=T,stringsAsFactors = FALSE)
+  
+  writeLines("\nEnsure that your data is set up as three columns with the first column having the sample location name, the second with the longitude and the third with the latitude. \n")
+  
+  if (length(colnames(coords))<3 | !is.numeric(coords[,2]) | !is.numeric(coords[,3])){
+    stop("\nCheck coordinate input, there is a problem here.\n")
+  }
+  
+  #Clean up column names
+  colnames(coords)[which(sapply(coords,is.character))[1]] <- "Code"
+  colnames(coords)[which(sapply(coords,is.numeric))[1]] <- "Long"
+  colnames(coords)[which(sapply(coords,is.numeric))[2]] <- "Lat"
+
   
   ## Set map limits------adding and subtracting 2 degrees to make the lc.dists function work better
   Lat.lim=c(min(coords$Lat)-2,max(coords$Lat)+2)
   Long.lim=c(min(coords$Long)-2,max(coords$Long)+2)
   
   #Get the bathydata and keep it
-  setwd(directory)
-  writeLines("Getting bathymetry data from NOAA database\n")
-  bathydata<-marmap::getNOAA.bathy(lon1 = Long.lim[1], lon2 = Long.lim[2], lat1 = Lat.lim[1], lat2 = Lat.lim[2],
-                           resolution = 1,keep=TRUE)
+  holddir <- getwd() # grab working directory
   
-  #Make colours and plot it
-  blues <- c("lightsteelblue4", "lightsteelblue3",
-             "lightsteelblue2", "lightsteelblue1")
-  greys <- c(grey(0.6), grey(0.93), grey(0.99))
+  # directory is specified.
+  if(!is.na(directory)){
+  setwd(directory) # switch to the output directory
+  writeLines("\nGetting bathymetry data from NOAA database\n")
+  bathydata<-marmap::getNOAA.bathy(lon1 = Long.lim[1], lon2 = Long.lim[2], lat1 = Lat.lim[1], lat2 = Lat.lim[2],
+                           resolution = gridres,keep=TRUE)
+  setwd(holddir)
+  } # set back to the working directory
+  
+  #directory is not specified.
+  if(is.na(directory)){
+    writeLines("\nGetting bathymetry data from NOAA database\n")
+    bathydata<-marmap::getNOAA.bathy(lon1 = Long.lim[1], lon2 = Long.lim[2], lat1 = Lat.lim[1], lat2 = Lat.lim[2],
+                                     resolution = gridres,keep=FALSE)
+  }
+  
+
+  ### check depths to ensure they are all in water (e.g., no positive 'land' depths)
   
   #Get depths and plot. If any depths > 0 we will not proceed
   depths<-marmap::get.depth(bathydata,x=coords$Long,y=coords$Lat,locator=F)
+  colnames(depths) <- c("Long","Lat","depth")
+  coords <- merge(coords,depths,by=c("Long","Lat"))
   
   #colours to assign those locations which are in water "green" and on land "red". 
-  depths$col <- "green"
-  depths[depths$depth>=0,"col"] <- "red"
+  coords$col <- "green"
+  coords[coords$depth>=0,"col"] <- "red"
   
-  
-  pdf("MyMap.pdf")
-  
-      marmap::plot.bathy(bathydata,image = TRUE, land = T, lwd = 0.03,
-                         bpal = list(c(0, max(bathydata), greys),
-                                     c(min(bathydata), 0, blues)),deep=0,shallow=0)
-      
-      marmap::plot.bathy(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE)
-      
-      legend("bottomright",
-             legend = c("Water","Land"), 
-             col=c("green","red"),
-             pch=19,
-             pt.cex=1.5,
-             bg="white")
-      
-      points(depths$lon, depths$lat,pch=19,cex=2,col=depths$col)
-  
-  dev.off()
+  if(length(which(depths$depth>0))!=0){
+    
+    writeLines("\nSome of your coordinates appear to have a positive depth. Refer to map and bump coordinates for those points marked as 'red' off of land. Suggest moving points farther off land for this analysis.\n")
+   
+    marmap::plot.bathy(bathydata,image = TRUE, land = T, lwd = 0.03,
+                       bpal = list(c(0, max(bathydata), greys),
+                                   c(min(bathydata), 0, blues)),deep=0,shallow=0)
+    
+    marmap::plot.bathy(bathydata, lwd = 1, deep = 0, shallow = 0, step = 0, add = TRUE)
+    
+    legend("bottomright",
+           legend = c("Water","Land"), 
+           col=c("green","red"),
+           pch=19,
+           pt.cex=1.5,
+           bg="white")
+    
+  points(coords$Long, coords$Lat,pch=19,cex=2,col=coords$col)
+    
+  print(coords[coords$depth>0,c("Code","Long","Lat","depth")])
+    
+  stop("\nFix and re-run funciton.\n")
+    
+  }
 
+  # min and maximum depth for transition object
   
-  if(sum(depths$depth >= 0)>0){
-      stop("\nSome of your points appear to be too close to land. Suggest moving points farther off land for this analysis\n\n\n")
-    }
+  if(is.na(min.depth)){min.depth <- 0
+  writeLines("\n No min.depth specified, defaulting to 0 m depth.\n")
+  }
   
-  #if all points are in water then continue
-  writeLines("\nAll coordinates appear to be in water.\n")
-  
-  writeLines("\nCalculating transition object for least-cost analysis.\n")
+  if(is.na(max.depth)){max.depth <- NULL
+  writeLines("\n No max.depth specified, defaulting to maximum depth of bathymetry object from marmap.\n")
+  }
   
   #Make the trans mat object then do the lc dist calculation
   
   if(is.na(trans)){
+  writeLines("\nCalculating transition object for least-cost analysis.\n")
   trans <- marmap::trans.mat(bathydata,min.depth = min.depth,max.depth = max.depth) 
   }
   
   sites<-coords[,c("Long","Lat")]
   rownames(sites)<-coords[,1]
   
-  writeLines("Calculating least cost distances. This will probably can take a few minutes depending onresolution...")
+  writeLines("\nCalculating least cost distances. This will probably can take a few minutes depending on resolution. If insufficient memory error is returned try adjusting the gridres argument (default = 2) to a higher number. gridres refers to the resolution of the bathymetric grid in minutes.\n")
   lc.dists <- marmap::lc.dist(trans, 
                       sites, 
                       res="dist")
-  writeLines("Meta MDS scaling into Cartesian coordinates\n\n")
+  writeLines("\nMeta MDS scaling into Cartesian coordinates\n")
   #Now the cartesian conversion using metaMDS
   set.seed(1)
-  cart.dists <- as.data.frame(metaMDS(lc.dists,k=2)$points) #K=2 because we want 2 dimensions
+  cart.dists <- as.data.frame(vegan::metaMDS(lc.dists,k=2)$points) #K=2 because we want 2 dimensions
   set.seed(1)
   stress.values <- vegan::metaMDS(lc.dists,k=2)$stress # this will vary slightly each time.
   dist.cart.dists <- dist(cart.dists)
   
-  if(stress.values>0.05){
-    print(paste0("Potentially high stress (>0.05) value detected in metaMDS reprojection: ",round(stress.values,4)))}else{print(paste0("metaMDS reprojection stress = ",round(stress.values,4)))}
+  #stress warnings
+  if(stress.values>0.05){writeLines(paste0("Potentially high stress (>0.05) value detected in metaMDS reprojection: ",round(stress.values,4)))}else{writeLines(paste0("metaMDS reprojection stress is good (<0.05) : ",round(stress.values,4)))}
   
   cartfit <- cbind(matrix(lc.dists)[,1],matrix(dist.cart.dists)[,1])
   cartfit <- data.frame(cartfit)
   colnames(cartfit) <- c("Deg","Cart")
-  cartfit$Stress <- stress.values
   
-  p1<-ggplot(filter(cartfit,Deg>0,Cart>0),aes(x=Deg,y=Cart))+
+  p1<-ggplot2::ggplot(cartfit[cartfit$Deg>0&cartfit$Cart>0,],aes(x=Deg,y=Cart))+
     geom_point()+
+    geom_abline(slope=1,intercept=0,lty=2)+
+    geom_smooth(method="lm",se = FALSE)+
     scale_x_log10()+
     scale_y_log10()+
-    stat_smooth(method="lm")+
     annotation_logticks(sides="bl")+
     theme_bw()+
-    labs(x="Geographic distance",y="Cartesian distance")
+    coord_fixed()+
+    labs(x="Least cost geographic distance (km)",y="Projected cartesian distance (km)")
   
-  ggsave(filename =paste0(directory,"Cartesian_vs_Geographic_Distances.png"),p1,device = "png",width = 8, height=8,dpi = 400)
-  ggsave(filename = paste0(directory,"Cartesian_vs_Geographic_Distances.pdf"),p1,device = "pdf",width = 8, height=8,dpi = 400)
+  writeLines("\nRelationship between the least-cost and projected distances. Note that the plot and slope/intercept estimates do exclude any zero distance estimates. Dashed line is the 1-1 fit and the blue line is the linear relationship between least-cost and projected distances.\n\n")
+  print(p1)
   
-  mod <- lm(log10(Deg)~log10(Cart),data=filter(cartfit,Cart>0,Deg>0))
+  #linear model between the projected and least-cost distances. This reflects the blue line in p1
+  mod <- lm(log10(Deg)~log10(Cart),data=cartfit[cartfit$Deg>0&cartfit$Cart>0,])
 
-  output <- list(Coords <- cbind(coords,cart.dists), #Geographic and Cartesian coordinates
-                 fitplot <- p1, #fitted plot
-                 mod <- mod, #fitted model
-                 trans <- trans, #transition object
-                 lc.dist <- lc.dist, #least cost distance matrix
-                 bathydata <- bathydata) #bathymetric layer
+  #objects to be saved to workspace
+  Coords <- cbind(coords,cart.dists) #Geographic and Cartesian coordinates
+  fitplot <- p1 #fitted plot
+  stress <- stress.values
+  mod <- mod #fitted model
+  trans <- trans #transition object
+  lc.dist <- lc.dist #least cost distance matrix
+  bathydata <- bathydata #bathymetric layer
   
-  return(output)
+  rm(list=setdiff(ls(), c("Coords","fitplot","stress","mod","trans","lc.dist","bathydata","outpath")))
   
-  writeLines(paste0("Writing coordinates to file ",directory,"MyCartesianCoordinates.csv"))
-  
-  write.csv(x = Coords,file = paste0(directory,"MyCartesianCoordinates.csv"),quote = FALSE,row.names = F)
+  if(!is.na(outpath)){save.image(outpath)}else{save.image(paste0("Output-", format(Sys.time(), "%Y_%m_%d_%H_%M_%S"),".RData"))}
   
 }
