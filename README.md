@@ -72,13 +72,14 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 
 # **Output**
 
-## Output is a list object containing:
+## The function will return a RData file containing the following objects. Note that the transition object can be used for later analyses within the same domain:
 
-**Parameter** | **Description**  
+**Object** | **Description**  
 --------------|-----------------------------------
 *Coords* | Geographic and Cartesian coordinates. 
 *fit.plot* | Realized vs projected distance comparision. 
 *mod*| Realized vs projected distance model. 
+*stress* | the stress of the MDS reprojection.
 *trans*| A transition object (object from the marmap::trans.mat or the transition object supplied by input parameter 'trans'). 
 *lc.dist* | Pairwise dissimilarity (km) among locations in the container provided by marmap::lc.dist.
 *bathydata* | Bathymetric data calcaulted for region. 
@@ -93,16 +94,51 @@ Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDi
 *trans*| A transition object (object from the marmap::trans.mat). Defualt is NA and will be calcauted. If this has been calculated already it can be included as a workspace object.
 *gridres* | The resolution used during marmap's bathymetry calculations. Ranges from 1-4, with 1 being the highest resolution. Note that higher resolutions will take a longer time.
 *directory* | The directory you want your results and figures deposited in. 
+*outpath* | This is the filepath for the output from the function a .Rdata file. Note this must be a full file path ending in .RData. If no path is provided a timestamped 'Output' .RData file will be created in the current directory.
 
 Re-project example coordinates into cartesian space accounting for land (>0 depth) as a impermeable barrier to dispersal. Note the data used in this example are available [here](https://github.com/rystanley/CartDist/tree/master/exampledata). Locations are derived from RAD sequencing study on European green crab (_Carcinus maenas_) available [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5395438/).
 
 
 ```r
 
-coord_cartesian("exampledata/examplecoordinates.csv", min.depth=-5,max.depth=NULL, gridres=2, directory="~/Desktop/") 
+#Run the cartesian reprojection code
+coord_cartesian("exampledata/examplecoordinates.csv", min.depth=0,max.depth=NULL, gridres=2, directory="~/Desktop/",outpath="exampledata/output.RData")
 
 ```
-![](vignette/ExampleMap.png)
+
+Here we can see that the function has stopped because the sample coordinates for the site "SGB" is on land. You will see the site code, longitude, latitude and estimated depth for any coordinates with positive depths. 
+
+![](vignette/ExampleMap-Landpoint.png)
+
+To fix this issue we will need to bump the coordinate into water. 
+
+```r
+
+#read in coordinate file
+coords <- read.csv("exampledata/examplecoordinates.csv",stringsAsfactors=F)
+
+#bump the site location into water by moving the longitude west by 1.5 degrees. 
+coords[coords$Code=="SGB","Long"] <- -59.5
+
+#save the revised file
+write.csv("exampledata/examplecoordinates_revised.csv",row.names=F)
+
+```
+
+Now we can re-run the analysis using the revised coordinates which should all be on land. Note that if the adjustments to the coordinates did not work, a map will be returned. 
+
+```r
+
+#Run the cartesian reprojection code. Here we tweaked the analysis to exclude any depths shallower than 5m.
+coord_cartesian("exampledata/examplecoordinates_revised.csv", min.depth=-5,max.depth=NULL, gridres=2, directory="~/Desktop/",outpath="exampledata/output.RData")
+
+#load in the results from the last analysis
+load("exampledata/output.RData")
+
+#The transition object from the first run can be used again in subsequent runs. 
+coord_cartesian("exampledata/examplecoordinates_revised.csv", min.depth=-5,max.depth=NULL, gridres=2,trans=trans, directory="~/Desktop/",outpath="exampledata/output2.RData")
+
+```
 
 An example bathymetry map with points produced by this function using the marmap package [Pante and Simon-Bouhet 2013](https://cran.r-project.org/web/packages/marmap/index.html)
 
@@ -117,14 +153,14 @@ Final output will show your stress (<0.05 is good) and new Cartesian coordinates
 
 **Code**  |  **Long** |   **Lat**   |   **MDS1**    |    **MDS2**
 ----------|-----------|-------------|---------------|-------------
-BDB | -61.716 | 47.000 | -495.7915 | -142.653254
-BRN | -62.000 | 46.102 | -528.7704 | -221.392140
-CBI | -66.800 | 44.400 | 484.5275 | -47.646351
-CLH | -63.440 | 44.000 | 186.1135 | 144.096598
-KJI | -65.000 | 43.300 | 294.2912 | -14.405217
-MBO | -61.900 | 46.000 |  -530.9009 | -220.900346
-NWH | -70.100 | 42.959 |  671.4362 | -244.326054
-PLB | -54.300 | 46.500 | -502.5656 |  585.986324
-SGB | -59.500 | 48.350 | -527.2547 |   35.758083
-SYH | -60.000 | 46.500 | -347.4827 |   -6.182589
-TKT | -74.200 | 39.006 | 1296.3973 |  131.664946
+BDB | -61.716 | 47.000 | -507.44 | -92.50
+BRN | -62.000 | 46.102 | -523.48 | -247.65
+CBI | -66.800 | 44.400 | 469.34 | -68.33
+CLH | -63.440 | 44.000 | 140.28 | 22.76
+KJI | -65.000 | 43.300 | 305.47 | -0.84
+MBO | -61.900 | 46.000 |  -523.48 | -247.65
+NWH | -70.100 | 42.959 |  756.96 | -210.18
+PLB | -54.300 | 46.500 | -519.23 |  571.84
+SGB | -59.500 | 48.350 | -523.04 |   64.07
+SYH | -60.000 | 46.500 | -364.40 |   34.05
+TKT | -74.200 | 39.006 | 1289.02 |  174.43
