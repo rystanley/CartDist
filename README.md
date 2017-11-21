@@ -20,6 +20,7 @@ CartDist requires the installation and availability of the following packages
     * [ggplot2](http://ggplot2.org/)
     * [vegan](https://cran.r-project.org/web/packages/vegan/vegan.pdf)
 
+Make sure marmap version 0.9.6 or higher is installed. 
 
 ***
 
@@ -58,13 +59,12 @@ Stanley, R.R.E and N.W. Jeffery 2017. CartDist: Re-projection tool for complex m
 
 ```r
 library(RCurl) # if you do not have the package rcurl installed please load from CRAN.
-library(EBImage) # see installation instructions for the EBImage package.
 
 #links for the 'raw' code
 Weblink <- c("https://raw.githubusercontent.com/rystanley/CartDist/master/CartDistFunction.R")
 
 #source the 'raw' code links into the local environment
-  script <- getURL(Weblink, ssl.verifypeer = FALSE)
+  script <- RCurl::getURL(Weblink, ssl.verifypeer = FALSE)
   eval(parse(text = script),envir=.GlobalEnv)
   rm(script)  
 
